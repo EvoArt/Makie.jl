@@ -186,9 +186,6 @@ function plot!(p::StreamPlot)
                         angle = acos(diff[2] / norm(diff))
                         angle = ifelse(diff[1] > 0, 2pi - angle, angle)
                     end
-                end
-                Billboard(angles)
-            end
     scatterfun(N)(
         p,
         lift(first, data), markersize = p.arrow_size,
