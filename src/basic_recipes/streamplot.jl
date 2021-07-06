@@ -174,11 +174,26 @@ function plot!(p::StreamPlot)
         inspectable = p.inspectable
     )
     N = ndims(p.limits[])
+    rotations = lift(scene.camera.projectionview, scene.px_area, data) do pv, pxa, hs
+                angles = map(hs) do (start, stop)
+                    pstart = project(scene, start)
+                    pstop = project(scene, stop)
+                    diff = pstop - pstart
+                    n = norm(diff)
+                    if n == 0
+                        zero(n)
+                    else
+                        angle = acos(diff[2] / norm(diff))
+                        angle = ifelse(diff[1] > 0, 2pi - angle, angle)
+                    end
+                end
+                Billboard(angles)
+            end
     scatterfun(N)(
         p,
         lift(first, data), markersize = p.arrow_size,
         marker = @lift(arrow_head(N, $(p.arrow_head), $(p.quality))),
-        color = lift(x-> x[4], data), rotations = lift(x-> x[2], data),
+        color = lift(x-> x[4], data), rotations = rotations,
         colormap = p.colormap, colorrange = p.colorrange,
         inspectable = p.inspectable
     )
